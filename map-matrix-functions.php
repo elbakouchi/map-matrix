@@ -195,7 +195,7 @@ function get_geo_info_from_lat_lng($request){
         $wp_session['geo_info'][] = null;
       }
     }
-    $wp_session['geo_info'] = array_filter($wp_session['geo_info'], 'is_not_null');;
+    $wp_session['geo_info'] = array_filter($wp_session['geo_info']);;
 
     return $wp_session['geo_info'];
     
