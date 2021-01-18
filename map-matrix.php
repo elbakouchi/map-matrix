@@ -19,13 +19,16 @@ const             __JEBSTORES_MAP_ZOOM__  = 7                                   
 const       __MAPBOX_GEOCODING_API_URL__  = '/geocoding/v5/mapbox.places/%s.json?access_token=%s';   
 const         __MAPBOX_DRIVING_API_URL__  = '/directions-matrix/v1/mapbox/driving-traffic/'      ;
 const __MAPBOX_DRIVING_API_QUERY_PARAMS__ = '%f,%f;%f,%f?sources=0&annotations=duration&destinations=1&fallback_speed=20&access_token=%s';   
+const   __MAPBOX_DRIVING_API_BULK_QUERY__ = '%f,%f;%s?sources=0&annotations=duration&destinations=%s&fallback_speed=20&access_token=%s';   
 const      __POSTCODES_IO_POSTCODE_URL__  = 'https://postcodes.io/postcodes/%s'                  ;
 const       __POSTCODES_IO_LAT_LNG_URL__  = 'https://postcodes.io/postcodes?lon=%f&lat=%f'       ;
-const                        __ENGLAND__  = 'england'                                             ;                    
-const                         __LONDON__  = 'london'                                             ;                    
+const                        __ENGLAND__  = 'england'                                            ;                    
+const                         __LONDON__  = 'london'                                             ;
+const                         __CITIES__  = [__LONDON__]                                         ; 
 
 
-$__MAPBOX_API_TOKEN__  = get_option('jebstores_mapbox_api_token')             ;
+          $__MAPBOX_API_TOKEN__ = get_option(__JEBSTORES_MAPBOX_API_TOKEN__);
+$__JEBSTORES_LONDON_REFERENCE__ = json_decode(get_option(__JEBSTORES_DEFAULT_REFERENCE__));
 
 require_once ABSPATH . 'wp-content/plugins/map-matrix/map-matrix-templates.php';
 require_once ABSPATH . 'wp-content/plugins/map-matrix/map-matrix-scripts.php';
