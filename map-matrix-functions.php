@@ -1,9 +1,41 @@
 <?php
+
+/**
+ * Jebstores Extended Woocommerce Product
+ * 
+ */
+
+function jebstores_wc_add_postcodes_to_wc_product() {
+  $args = array(
+  'label' => __( 'Postcodes list', 'woocommerce' ),
+  'placeholder' => __( 'Enter a comma separated list of postcodes', 'woocommerce' ),
+  'id' => 'wc_product_postcodes',
+  'desc_tip' => true,
+  'description' => __( 'This product can only be delivered to these postcodes.', 'woocommerce' ),
+  );
+  woocommerce_wp_textarea_input( $args );
+  }
+
+  add_action( 'woocommerce_product_options_shipping', 'jebstores_wc_add_postcodes_to_wc_product' );
+
+function jebstores_wc_save_postcodes_to_wc_product( $post_id ) {
+    // grab the custom SKU from $_POST
+    $postcodes = isset( $_POST[ 'wc_product_postcodes' ] ) ? sanitize_textarea_field( $_POST[ 'wc_product_postcodes' ] ) : '';
+    
+    // grab the product
+    $product = wc_get_product( $post_id );
+    
+    // save the custom SKU using WooCommerce built-in functions
+    $product->update_meta_data( 'wc_product_postcodes', $postcodes );
+    $product->save();
+    }
+    
+    add_action( 'woocommerce_process_product_meta', 'jebstores_wc_save_postcodes_to_wc_product' );
+
 /**
  * Actions Callbacks
  */
 
-use function PHPSTORM_META\type;
 
 $mapbox_api_credentials = array();
 
@@ -75,6 +107,10 @@ function map_box_script(){
 /**
  * Helpers
  */
+
+function jebstores_wc_register_widgets() {
+	register_widget( 'Jebstores_WC_Widget_Product_Postcode_Filter' );
+}
 
 function template($map, $form1, $form2=null){
   echo 
@@ -364,37 +400,44 @@ function add_custom_apis(){
     register_rest_route( 'geomap/v1', '/postcode/(?P<postcode>[a-zA-Z0-9 .\-]+)', array(
       'methods' => 'GET',
       'callback' => 'get_geo_info_from_postcode',
+      'permission_callback' => '__return_true'
     ));
 
     register_rest_route( 'geomap/v1', '/lat-lng/(?P<lat>[0-9 .\-]+)/(?P<lng>[0-9 .\-]+)', array(
       'methods' => 'GET',
       'callback' => 'get_geo_info_from_lat_lng',
+      'permission_callback' => '__return_true'
     ));
 
     register_rest_route( 'geomap/v1', '/cities/add/city=(?P<city>[a-zA-Z0-9-]+)', array(
         'methods' => 'GET',
         'callback' => 'get_custom_users_data',
+        'permission_callback' => '__return_true'
     ));
 
     register_rest_route( 'geomap/v1', '/reference/lat=(?P<lat>[a-z0-9 .\-]+)/lng=(?P<lng>[a-z0-9 .\-]+)', array(
       'methods' => 'GET',
       'callback' => 'set_default_reference',
+      'permission_callback' => '__return_true'
     ));
 
     register_rest_route( 'geomap/v1', '/driving/lat-lng/(?P<lat>[0-9 .\-]+)/(?P<lng>[0-9 .\-]+)', array(
       'methods' => 'GET',
       'callback' => 'get_driving_time',
+      'permission_callback' => '__return_true'
     ));
 
 
     register_rest_route( 'geomap/v1', '/products', array(
       'methods' => 'GET',
       'callback' => 'get_products_by_postcodes',
+      'permission_callback' => '__return_true'
     ));
 
     register_rest_route( 'geomap/v1', '/driving', array(
       'methods' => 'GET',
       'callback' => 'get_driving_time',
+      'permission_callback' => '__return_true'
     ));
 
    // register_rest_route( 'geomap/v1', '/cities/city=(?P<city>[a-zA-Z0-9-]+)lat=(?P<lat>[a-z0-9 .\-]+)/lng=(?P<lng>[a-z0-9 .\-]+)', array(
@@ -405,11 +448,13 @@ function add_custom_apis(){
     register_rest_route( 'geomap/v1', '/mapbox/api', array(
       'methods' => 'POST',
       'callback' => 'set_mapbox_api_credentials',
+      'permission_callback' => '__return_true'
     ));  
 
     register_rest_route( 'geomap/v1', '/mapbox/api', array(
       'methods' => 'POST',
       'callback' => 'set_mapbox_api_credentials',
+      'permission_callback' => '__return_true'
     )); 
 }
 
@@ -433,6 +478,7 @@ add_action( 'rest_api_init', 'add_custom_apis');
 
 //add_action('get_mapbox_api_credentials', 'get_mapbox_api_credentialst')
 
+add_action( 'widgets_init', 'jebstores_wc_register_widgets' );
 
 /**
  * Stash

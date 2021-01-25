@@ -1,8 +1,14 @@
 <?php
 /**
- * Plugin Name: JebStores Map Distance Matrix 0.1.0
+ * Plugin Name: JebStores Products Map Distance Matrix 0.1.0
  */
-const               __THIS_PLUGIN_NAME__  = 'JebStores Geolocation Map & Distance Matrix'        ;
+
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+const               __THIS_PLUGIN_NAME__  = 'JebStores Products Geolocation Map & Distance Matrix'        ;
 const                        __VERSION__  = '0.1.0'                                              ;
 const    __JEBSTORES_DEFAULT_REFERENCE__  = 'jebstores_default_reference_1'                      ;
 const       __JEBSTORES_MAPBOX_API_URL__  = 'jebstores_mapbox_api_url'                           ;
@@ -30,9 +36,11 @@ const                         __CITIES__  = [__LONDON__]                        
           $__MAPBOX_API_TOKEN__ = get_option(__JEBSTORES_MAPBOX_API_TOKEN__);
 $__JEBSTORES_LONDON_REFERENCE__ = json_decode(get_option(__JEBSTORES_DEFAULT_REFERENCE__));
 
-require_once ABSPATH . 'wp-content/plugins/map-matrix/map-matrix-templates.php';
-require_once ABSPATH . 'wp-content/plugins/map-matrix/map-matrix-scripts.php';
-require_once ABSPATH . 'wp-content/plugins/map-matrix/map-matrix-functions.php';
+require_once ABSPATH . 'wp-content/plugins/jebstores-product-map-matrix/map-matrix-templates.php';
+require_once ABSPATH . 'wp-content/plugins/jebstores-product-map-matrix/map-matrix-scripts.php';
+require_once ABSPATH . 'wp-content/plugins/jebstores-product-map-matrix/class-jebstores-wc-widget-product-postcode-filter.php';
+require_once ABSPATH . 'wp-content/plugins/jebstores-product-map-matrix/map-matrix-functions.php';
+
 
 ?>
 
