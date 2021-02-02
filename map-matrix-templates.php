@@ -35,6 +35,25 @@ $apiFormBox = '
   </form>
 ';
 
+$listOfDelieverablePostcodesForm='
+<form method="post" id="postCodesForm">
+  <div class="field">
+    <label class="label">Postcodes list</label>
+    <div class="control">
+      <textarea class="input" name="postcodes" type="text" placeholder="E1,E1W,E2…">%s</textarea>
+    </div>
+  </div>
+  <div class="field is-grouped">
+    <div class="control">
+      <button id="submitPostcodes" class="button is-link">Save</button>
+    </div>
+    <!--div class="control">
+        <button class="button is-link is-light">Cancel</button>
+    </div-->
+  </div>
+</form>
+';
+
 $activateCitiesForm = '
 <form method="post" id="citiesForm">
   <div class="field">
@@ -78,7 +97,7 @@ $mapPanel = '<div class="panel %s %s">
     </a-->
   </header>
   <div class="panel-block has-background-white">
-    <div class="content %s">%s</div>
+    <div class="content %s" style="min-width:100%%;height:200px !;">%s</div>
   </div>
   <!--footer class="card-footer">
     <a href="#" class="card-footer-item">Save</a>

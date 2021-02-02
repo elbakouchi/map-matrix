@@ -1,9 +1,9 @@
 <?php
-
 /**
  * Jebstores Extended Woocommerce Product
  * 
  */
+
 
 function jebstores_wc_add_postcodes_to_wc_product() {
   $args = array(
@@ -49,8 +49,8 @@ function js_import(){
 }
 
 function scripts_import(){
-  global $persistApiScript, $persistActiveCitiesScript, $persistDefaultReferenceScript;
-  echo   $persistApiScript, $persistActiveCitiesScript, $persistDefaultReferenceScript ;
+  global $persistApiScript, $persistActiveCitiesScript, $persistDefaultReferenceScript, $persistPostCodes;
+  echo   $persistApiScript, $persistActiveCitiesScript, $persistDefaultReferenceScript, $persistPostCodes ;
 }
 
 
@@ -78,17 +78,20 @@ function geo_map_distance_matrix_page($e){
   $login = get_option(__JEBSTORES_MAPBOX_API_LOGIN__);
   $token = get_option(__JEBSTORES_MAPBOX_API_TOKEN__);
   $url   = get_option( __JEBSTORES_MAPBOX_API_URL__ );
+  $postcodes   = get_option( __JEBSTORES_DELIVERABLE_POSTCODES__ );
   
-  global $mapBox, $mapPanel, $apiFormBox;// , $activateCitiesForm; 
+  global $mapBox, $mapPanel, $apiFormBox, $listOfDelieverablePostcodesForm;// , $activateCitiesForm; 
   
   $filledApiFormBox = sprintf($apiFormBox, $url, $login, $token);
+  $filledPostcodesForm = sprintf($listOfDelieverablePostcodesForm, $postcodes);
 
   
   $map   = sprintf($mapPanel, 'is-primary', '', __JEBSTORES_MAP_PANEL_TITLE__, 'is-full' , $mapBox             );
   $form1 = sprintf($mapPanel, 'is-info',    '', __JEBSTORES_MAP_API_TITLE__,   'is-full' , $filledApiFormBox   );
-  //$form2 = sprintf($mapPanel, 'is-success', '', __JEBSTORES_CITIES_PANEL__,    'is-full' , $activateCitiesForm );
+  $form2 = null; //sprintf($mapPanel, 'is-warning', '', __JEBSTORES_POSTCODES_PANEL__, 'is-full' , $persistPostCodes );
+  $form3 = sprintf($mapPanel, 'is-warning', '', __JEBSTORES_POSTCODES_PANEL__, 'is-full' , $filledPostcodesForm );
   
-  template($map, $form1);//, $form2);
+  template($map, $form1, $form2, $form3);
 }
   
 function map_box_script(){
@@ -112,7 +115,7 @@ function jebstores_wc_register_widgets() {
 	register_widget( 'Jebstores_WC_Widget_Product_Postcode_Filter' );
 }
 
-function template($map, $form1, $form2=null){
+function template($map, $form1, $form2=null, $form3){
   echo 
     '<div class="wrap has-background-white">'
    . '<h1 class="wp-heading-inline">'.__THIS_PLUGIN_NAME__.'</h1><h2><subtitle>'.__VERSION__.'</subtitle></h2>'
@@ -131,16 +134,16 @@ function template($map, $form1, $form2=null){
    . '</div>'
  //  . '</div>'
   // . '<div class="clear"></div>'
-//   . '<div class="section">'
-//   . '<div class="container">'
-//   . '<div class="columns">'
- //  . '<div class="column is-third">'
- //  . $form2
- //  . '</div>'
-  // . '</div>'
-  // . '</div>'
- //  . '</div>'
- //  . '</div>'
+   . '<div class="section">'
+   . '<div class="container">'
+   . '<div class="columns">'
+   . '<div class="column is-third">'
+   . $form3
+   . '</div>'
+   . '</div>'
+   . '</div>'
+   . '</div>'
+   . '</div>'
  //  . '<div class="clear"></div>';
  ;
 }
@@ -206,11 +209,6 @@ function map_coords($a, $b){
   return $a . ',' . $b;
 }
 
-function reduce_coords($carry, $item){
-  echo      $item;
-  $carry .= $item;
-  return   $carry; 
-}
 /**
  * Rest APIs & Controllers
  */
@@ -310,6 +308,13 @@ function prepare_geo_info($geocoding_info){
   }
 }
 
+function check_postcode_enqueuer() {
+  wp_register_script( "check_postcode_script", WP_PLUGIN_URL.'/jebstores-product-map-matrix/check_postcode_script.js', array('jquery') );
+  wp_localize_script( 'check_postcode_script', 'jebStoresAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));  
+  wp_enqueue_script( 'jquery' );
+  wp_enqueue_script( 'check_postcode_script' ); 
+} 
+
 function fetch_postcode_geocoding_info($request){
   global $__MAPBOX_API_TOKEN__;
   if ($request->has_param('postcode') && postcode_valid($request->get_param('postcode'))){
@@ -357,6 +362,40 @@ function get_products_by_postcodes($request){
   
 }
 
+function check_postcode(){
+    global $wp_query;
+   // $postcode = $wp_query->get( 'postcode' );
+    $postcode = $_REQUEST['postcode'];
+    if ( ! empty( $postcode ) ){ // && postcode_valid($postcode)) {
+      $postcode_parts = explode(' ', $postcode);
+      $part1 = (string) $postcode_parts[0];
+      if( in_array( $part1, $_SESSION['postcodes'] ) !== false ) {
+        $msg = 'Good postcode: ' . $postcode;
+        error_log($msg);
+        $result = (object)  array('status'=>'Ok', 'redirect_url'=>'/products');
+      }else{
+        $result = (object) array('status'=>'Ko');
+      }
+    }else{
+      $result = (object)  array('status'=>'No');
+    }
+
+    //if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+      $result = json_encode($result);
+      header('Content-Type', 'application/json');
+      echo $result;
+    /*}
+    else {
+      try{
+        header("Location: ".$_SERVER["HTTP_REFERER"]);
+      }catch(Exception $e){
+        header("Location: / ");
+      }
+    }
+*/
+    die();
+} 
+
 function set_mapbox_api_credentials($request){
     
     $token = $request->get_param('api_token');  
@@ -390,6 +429,45 @@ function set_default_reference($request){
                               'lng'=>floatval($request['lng'])) ) );
   }
   return rest_ensure_response( ['lat'=>$request['lat'], 'lng'=>$request['lng'],] );
+}
+
+function set_deliverable_postcodes($request){
+  $deliverable_postcodes = get_option(__JEBSTORES_DELIVERABLE_POSTCODES__);
+ // var_dump($request);
+  if($deliverable_postcodes){
+    update_option(__JEBSTORES_DELIVERABLE_POSTCODES__, $request['postcodes']);
+  }else{
+    add_option(__JEBSTORES_DELIVERABLE_POSTCODES__, $request['postcodes']);
+  }
+  return rest_ensure_response(['message'=>'Success','postcodes'=>$request['postcodes']]);
+}
+
+function get_deliverable_postcodes(){
+  if(!session_id()) {
+    session_start();
+    $deliverable_postcodes = get_option(__JEBSTORES_DELIVERABLE_POSTCODES__);
+    if($deliverable_postcodes){
+      if( !array_key_exists('postcode', $_SESSION) ){
+        $_SESSION['postcodes'] = explode(',', $deliverable_postcodes);
+        error_log('postcodes loaded');
+      }else{
+        error_log('postcodes already there!');
+      }
+    }else{
+      error_log('no postcodes loaded');
+    }
+  }
+}
+
+
+function postcode_exists($request){
+  var_dump($request);
+  return rest_ensure_response(['status'=>'Ok']);
+}
+
+function postcode_does_not_exists($request){
+  var_dump($request);
+  return rest_ensure_response(['status'=>'Ko']);
 }
 
 /**
@@ -451,9 +529,21 @@ function add_custom_apis(){
       'permission_callback' => '__return_true'
     ));  
 
-    register_rest_route( 'geomap/v1', '/mapbox/api', array(
+    register_rest_route( 'geomap/v1', '/postcodes', array(
       'methods' => 'POST',
-      'callback' => 'set_mapbox_api_credentials',
+      'callback' => 'set_deliverable_postcodes',
+      'permission_callback' => '__return_true'
+    )); 
+
+    register_rest_route( 'geomap/v1', '/postcode/exists', array(
+      'methods' => 'GET',
+      'callback' => 'postcode_exists',
+      'permission_callback' => '__return_true'
+    )); 
+
+    register_rest_route( 'geomap/v1', '/postcode/does-not-exists', array(
+      'methods' => 'GET',
+      'callback' => 'postcode_does_not_exists',
       'permission_callback' => '__return_true'
     )); 
 }
@@ -462,7 +552,9 @@ function add_custom_apis(){
  * WP actions hooks
  */
 
- // Add hook for admin menu
+// Add hook for admin menu
+add_action( 'init', 'check_postcode_enqueuer' );
+add_action( 'init',  'get_deliverable_postcodes', 1);
 add_action( 'admin_menu', 'geo_map_distance_matrix_menu' );
 
 // Add hook for admin <head></head>
@@ -476,43 +568,18 @@ add_action('admin_footer', 'map_box_script');
 //The Following registers an api route with multiple parameters. 
 add_action( 'rest_api_init', 'add_custom_apis');
 
+
+//add_action( 'init', function() {
+  //add_rewrite_tag( '%postcode%', '([^/]+)' );
+  //add_rewrite_rule( 'check-postcode/?postcode=([^/]+)/?', 'index.php?postcode=$matches[1]', 'top' );
+  //add_rewrite_tag( '%deliverable%', '([^/]+)' );
+  //add_rewrite_rule( 'delivery/?deliverable=([^/]+)/?', 'index.php?deliverable=$matches[1]', 'top' );
+//} );
+add_action("wp_ajax_check_postcode", "check_postcode");
+add_action("wp_ajax_nopriv_check_postcode", "check_postcode");
+ 
+//add_action( 'template_redirect', 'check_postcode');
+
 //add_action('get_mapbox_api_credentials', 'get_mapbox_api_credentialst')
 
-add_action( 'widgets_init', 'jebstores_wc_register_widgets' );
-
-/**
- * Stash
- * 
- * // $dump = get_option(__JEBSTORES_MAPBOX_API_URL__);
-    // if($dump){
-    //   update_option(__JEBSTORES_MAPBOX_API_URL__, $request['api_url'] );
-    // }elseif($dump != $request['api_url'] && !empty($dump)){
-    //   add_option(__JEBSTORES_MAPBOX_API_URL__, $request['api_url'] );
-    // }
-
-    // $dump = get_option(__JEBSTORES_MAPBOX_API_LOGIN__);
-    // if($dump){
-    //   update_option(__JEBSTORES_MAPBOX_API_LOGIN__, $request['api_login'] );
-    // }elseif($dump != $request['api_login'] && !empty($dump) ){
-    //   add_option(__JEBSTORES_MAPBOX_API_LOGIN__, $request['api_login'] );
-    // }
- * // if($geocoding_info->status== 200){
-  //   $country   = $geocoding_info->data->result->country;
-  //   $city      = $geocoding_info->data->result->nhs_ha;
-  //   $latitude  = $geocoding_info->data->result->latitude;
-  //   $longitude = $geocoding_info->data->result->longitude;
-  //   $postcode  = $geocoding_info->data->result->postcode;
-  //   $geo_info  = (object) array('country'=>$country, 'city'=>$city, 'postcode'=>$postcode, 'lat'=>$latitude, 'lng'=>$longitude);
-  //   if(strtolower($geo_info->country) == __ENGLAND__ 
-  //                   && strtolower($geo_info->city) == __LONDON__){
-  //     $wp_session['geo_info'] = [$geo_info];
-  //   }else{
-  //     $wp_session['geo_info'] = false;
-  //   }
-    
-  //   return $geo_info;
-    
-  // }else{
-  //   return $geocoding_info;
-  // }
- */
+//add_action( 'widgets_init', 'jebstores_wc_register_widgets' );

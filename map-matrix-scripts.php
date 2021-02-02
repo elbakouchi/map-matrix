@@ -6,7 +6,7 @@ jQuery(document).ready(
 function(){
   jQuery("#submitApiCredentials").click(function(e){
     e.preventDefault();
-    console.log("click1");
+    console.log("click4");
     let url      = "/?rest_route=/geomap/v1/mapbox/api";
     let form     = jQuery("#apiForm");
     //let apiUrl   = form.find("input[name=api_url]").val();
@@ -30,6 +30,37 @@ function(){
 </script>
 ';
 
+$persistPostCodes =  '
+<script>
+jQuery(document).ready(
+function(){
+  jQuery("#submitPostcodes").click(function(e){
+    e.preventDefault();
+    console.log("click1");
+    let url      = "/?rest_route=/geomap/v1/postcodes";
+    let form     = jQuery("#postCodesForm");
+    //let apiUrl   = form.find("input[name=api_url]").val();
+    //let apiLogin = form.find("input[name=api_login]").val();
+    let postcodes = form.find("textarea[name=postcodes]").val();
+    console.log(postcodes);
+    //let posting  = jQuery.post(url, {"api_url":apiUrl, "api_login":apiLogin,"api_token":apiToken});
+    let posting  = jQuery.post(url, {"postcodes":postcodes});
+    posting.done(function(e){
+                      console.log(e);
+                      alert(e.message+"\nDeliverable postcodes successfully saved!");
+                     // window.location.reload();
+                    });
+    posting.fail(function(e){
+                      console.log(e);
+                      alert("Saving deliverable postcodes failed.\nPlease try again!");
+                      //window.location.reload();
+                    });
+  });
+}
+);
+</script>
+';
+
 $persistActiveCitiesScript = '
 <script>
 jQuery(document).ready(
@@ -42,6 +73,18 @@ function(){
   });
 }
 );
+</script>
+';
+
+
+$checkDelivery= '
+<script>
+var urlParams = new URLSearchParams(window.location.search);
+	console.log(urlParams);
+  if(urlParams.has("deliverable") && urlParams.get("deliverable") == false ){
+   alert("POSTCODE"); jQuery("#notDelivrablePostcode").show();
+		
+  }
 </script>
 ';
 
