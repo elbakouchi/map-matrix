@@ -364,14 +364,16 @@ function get_products_by_postcodes($request){
 
 function check_postcode(){
     global $wp_query;
-   // $postcode = $wp_query->get( 'postcode' );
+  
     $postcode = $_REQUEST['postcode'];
     if ( ! empty( $postcode ) ){ // && postcode_valid($postcode)) {
       $postcode_parts = explode(' ', $postcode);
       $part1 = (string) $postcode_parts[0];
       if( in_array( $part1, $_SESSION['postcodes'] ) !== false ) {
-        $msg = 'Good postcode: ' . $postcode;
-        error_log($msg);
+    
+        $_SESSION['current_postcode'] = $postcode;
+        $_SESSION['postcode_root'] = $part1;
+       
         $result = (object)  array('status'=>'Ok', 'redirect_url'=>'/products');
       }else{
         $result = (object) array('status'=>'Ko');
