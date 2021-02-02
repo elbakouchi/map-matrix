@@ -16,7 +16,7 @@ jQuery(document).ready(function () {
                 jQuery('#notDelivrablePostcode').show();
             }else if ( json_response.status === "No" ) {
                 jQuery('#notValidPostCode').show();
-            }else{
+            }else if ( json_response.status === "Ok" ) {
                 window.location.href = json_response.redirect_url;
             }
         });
