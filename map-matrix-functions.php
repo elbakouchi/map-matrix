@@ -12,6 +12,7 @@ function jebstores_wc_add_postcodes_to_wc_product() {
   'id' => 'wc_product_postcodes',
   'desc_tip' => true,
   'description' => __( 'This product can only be delivered to these postcodes.', 'woocommerce' ),
+  'value' => get_option(__JEBSTORES_DELIVERABLE_POSTCODES__)
   );
   woocommerce_wp_textarea_input( $args );
   }
@@ -374,7 +375,7 @@ function check_postcode(){
         $_SESSION['current_postcode'] = $postcode;
         $_SESSION['postcode_root'] = $part1;
        
-        $result = (object)  array('status'=>'Ok', 'redirect_url'=>'/products');
+        $result = (object)  array('status'=>'Ok', 'redirect_url'=>'/?post_type=product');
       }else{
         $result = (object) array('status'=>'Ko');
       }
@@ -462,15 +463,6 @@ function get_deliverable_postcodes(){
 }
 
 
-function postcode_exists($request){
-  var_dump($request);
-  return rest_ensure_response(['status'=>'Ok']);
-}
-
-function postcode_does_not_exists($request){
-  var_dump($request);
-  return rest_ensure_response(['status'=>'Ko']);
-}
 
 /**
  * Routes
@@ -537,17 +529,6 @@ function add_custom_apis(){
       'permission_callback' => '__return_true'
     )); 
 
-    register_rest_route( 'geomap/v1', '/postcode/exists', array(
-      'methods' => 'GET',
-      'callback' => 'postcode_exists',
-      'permission_callback' => '__return_true'
-    )); 
-
-    register_rest_route( 'geomap/v1', '/postcode/does-not-exists', array(
-      'methods' => 'GET',
-      'callback' => 'postcode_does_not_exists',
-      'permission_callback' => '__return_true'
-    )); 
 }
 
 /**
@@ -579,7 +560,13 @@ add_action( 'rest_api_init', 'add_custom_apis');
 //} );
 add_action("wp_ajax_check_postcode", "check_postcode");
 add_action("wp_ajax_nopriv_check_postcode", "check_postcode");
- 
+
+function filter_products_by_postcode(){
+  global $posts;
+  print_r($posts);
+
+}
+add_action('woocommerce_before_shop_loop_item', 'filter_products_by_postcode');
 //add_action( 'template_redirect', 'check_postcode');
 
 //add_action('get_mapbox_api_credentials', 'get_mapbox_api_credentialst')
