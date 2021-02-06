@@ -9,7 +9,7 @@ function jebstores_wc_add_postcodes_to_wc_product() {
   $args = array(
   'label' => __( 'Postcodes list', 'woocommerce' ),
   'placeholder' => __( 'Enter a comma separated list of postcodes', 'woocommerce' ),
-  'id' => 'wc_product_postcodes',
+  'id' => __JEBSTORES_PRODUCT_POSTCODES__,
   'desc_tip' => true,
   'description' => __( 'This product can only be delivered to these postcodes.', 'woocommerce' ),
   'value' => get_option(__JEBSTORES_DELIVERABLE_POSTCODES__)
@@ -21,13 +21,13 @@ function jebstores_wc_add_postcodes_to_wc_product() {
 
 function jebstores_wc_save_postcodes_to_wc_product( $post_id ) {
     // grab the custom SKU from $_POST
-    $postcodes = isset( $_POST[ 'wc_product_postcodes' ] ) ? sanitize_textarea_field( $_POST[ 'wc_product_postcodes' ] ) : '';
+    $postcodes = isset( $_POST[ __JEBSTORES_PRODUCT_POSTCODES__ ] ) ? sanitize_textarea_field( $_POST[ __JEBSTORES_PRODUCT_POSTCODES__ ] ) : '';
     
     // grab the product
     $product = wc_get_product( $post_id );
     
     // save the custom SKU using WooCommerce built-in functions
-    $product->update_meta_data( 'wc_product_postcodes', $postcodes );
+    $product->update_meta_data( __JEBSTORES_PRODUCT_POSTCODES__, $postcodes );
     $product->save();
     }
     
@@ -308,10 +308,14 @@ function prepare_geo_info($geocoding_info){
     return rest_ensure_response($error);
   }
 }
+function show_driving_time(){
+
+}
 
 function check_postcode_enqueuer() {
   wp_register_script( "check_postcode_script", WP_PLUGIN_URL.'/jebstores-product-map-matrix/check_postcode_script.js', array('jquery') );
   wp_localize_script( 'check_postcode_script', 'jebStoresAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));  
+  wp_localize_script( 'check_postcode_script', 'jebStoresPostcodes', array( 'postcodes'=>explode(',', get_option(__JEBSTORES_DELIVERABLE_POSTCODES__) ) ) );  
   wp_enqueue_script( 'jquery' );
   wp_enqueue_script( 'check_postcode_script' ); 
 } 
@@ -359,21 +363,35 @@ function get_driving_time($request){
   return $driving;
 }
 
-function get_products_by_postcodes($request){
-  
+function filter_products_by_postcode( $query ) {
+  // Check this is main query and other conditionals as needed
+  if( $query->is_main_query() ) {
+      $query->set( 
+        'meta_query', 
+        array( 
+          array(
+            'key' => __JEBSTORES_PRODUCT_POSTCODES__,
+            'value' => $_SESSION[__JEBSTORES_USER_POSTCODE_ROOT__],
+            'compare' => 'LIKE'
+          )
+        )
+      );
+  }
 }
+
 
 function check_postcode(){
     global $wp_query;
   
     $postcode = $_REQUEST['postcode'];
-    if ( ! empty( $postcode ) ){ // && postcode_valid($postcode)) {
+    if ( ! empty( $postcode ) ) { // && postcode_valid($postcode)) {
       $postcode_parts = explode(' ', $postcode);
       $part1 = (string) $postcode_parts[0];
       if( in_array( $part1, $_SESSION['postcodes'] ) !== false ) {
     
-        $_SESSION['current_postcode'] = $postcode;
-        $_SESSION['postcode_root'] = $part1;
+        $_SESSION[__JEBSTORES_USER_POSTCODE__] = $postcode;
+        $_SESSION[__JEBSTORES_USER_POSTCODE_ROOT__] = $part1;
+        error_log('Good postcode detected: ' . $_SESSION[__JEBSTORES_USER_POSTCODE__] . ' ' . $_SESSION[__JEBSTORES_USER_POSTCODE_ROOT__]);
        
         $result = (object)  array('status'=>'Ok', 'redirect_url'=>'/?post_type=product');
       }else{
@@ -382,20 +400,9 @@ function check_postcode(){
     }else{
       $result = (object)  array('status'=>'No');
     }
-
-    //if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-      $result = json_encode($result);
-      header('Content-Type', 'application/json');
-      echo $result;
-    /*}
-    else {
-      try{
-        header("Location: ".$_SERVER["HTTP_REFERER"]);
-      }catch(Exception $e){
-        header("Location: / ");
-      }
-    }
-*/
+    $result = json_encode($result);
+    header('Content-Type', 'application/json');
+    echo $result;
     die();
 } 
 
@@ -418,6 +425,10 @@ function set_mapbox_api_credentials($request){
       $error = new WP_Error(400,'No token provided',$token);
       return rest_ensure_response($error);
     }
+}
+
+function display_no_products_for_postcode(){
+   wc_get_template_html('<p class="woocommerce-info">'. esc_html_e( 'No products were found matching your postcode.', 'woocommerce' ) .'</p>');
 }
 
 function set_default_reference($request){
@@ -462,6 +473,17 @@ function get_deliverable_postcodes(){
   }
 }
 
+function get_products_by_postcode( $meta_query, $query ) {
+  // Only on shop pages
+  //if( ! is_shop() ) return $meta_query;
+  
+  $meta_query[] = array(
+    'key'     => __JEBSTORES_PRODUCT_POSTCODES__,
+    'value'   => $_SESSION[__JEBSTORES_USER_POSTCODE_ROOT__], 
+    'compare' => 'LIKE'
+  );
+  return $meta_query;
+}
 
 
 /**
@@ -469,76 +491,77 @@ function get_deliverable_postcodes(){
  */
 
 function add_custom_apis(){
-    register_rest_route( 'geomap/v1', '/postcode/(?P<postcode>[a-zA-Z0-9 .\-]+)', array(
-      'methods' => 'GET',
-      'callback' => 'get_geo_info_from_postcode',
-      'permission_callback' => '__return_true'
-    ));
-
-    register_rest_route( 'geomap/v1', '/lat-lng/(?P<lat>[0-9 .\-]+)/(?P<lng>[0-9 .\-]+)', array(
-      'methods' => 'GET',
-      'callback' => 'get_geo_info_from_lat_lng',
-      'permission_callback' => '__return_true'
-    ));
-
-    register_rest_route( 'geomap/v1', '/cities/add/city=(?P<city>[a-zA-Z0-9-]+)', array(
-        'methods' => 'GET',
-        'callback' => 'get_custom_users_data',
-        'permission_callback' => '__return_true'
-    ));
-
-    register_rest_route( 'geomap/v1', '/reference/lat=(?P<lat>[a-z0-9 .\-]+)/lng=(?P<lng>[a-z0-9 .\-]+)', array(
-      'methods' => 'GET',
-      'callback' => 'set_default_reference',
-      'permission_callback' => '__return_true'
-    ));
-
-    register_rest_route( 'geomap/v1', '/driving/lat-lng/(?P<lat>[0-9 .\-]+)/(?P<lng>[0-9 .\-]+)', array(
-      'methods' => 'GET',
-      'callback' => 'get_driving_time',
-      'permission_callback' => '__return_true'
-    ));
-
-
-    register_rest_route( 'geomap/v1', '/products', array(
-      'methods' => 'GET',
-      'callback' => 'get_products_by_postcodes',
-      'permission_callback' => '__return_true'
-    ));
-
-    register_rest_route( 'geomap/v1', '/driving', array(
-      'methods' => 'GET',
-      'callback' => 'get_driving_time',
-      'permission_callback' => '__return_true'
-    ));
-
-   // register_rest_route( 'geomap/v1', '/cities/city=(?P<city>[a-zA-Z0-9-]+)lat=(?P<lat>[a-z0-9 .\-]+)/lng=(?P<lng>[a-z0-9 .\-]+)', array(
-     // 'methods' => 'GET',
-      //'callback' => 'set_active_cities',
-   // ));
-
+  register_rest_route( 'geomap/v1', '/postcode/(?P<postcode>[a-zA-Z0-9 .\-]+)', array(
+    'methods' => 'GET',
+    'callback' => 'get_geo_info_from_postcode',
+    'permission_callback' => '__return_true'
+  ));
+  
+  register_rest_route( 'geomap/v1', '/lat-lng/(?P<lat>[0-9 .\-]+)/(?P<lng>[0-9 .\-]+)', array(
+    'methods' => 'GET',
+    'callback' => 'get_geo_info_from_lat_lng',
+    'permission_callback' => '__return_true'
+  ));
+  
+  register_rest_route( 'geomap/v1', '/cities/add/city=(?P<city>[a-zA-Z0-9-]+)', array(
+    'methods' => 'GET',
+    'callback' => 'get_custom_users_data',
+    'permission_callback' => '__return_true'
+  ));
+  
+  register_rest_route( 'geomap/v1', '/reference/lat=(?P<lat>[a-z0-9 .\-]+)/lng=(?P<lng>[a-z0-9 .\-]+)', array(
+    'methods' => 'GET',
+    'callback' => 'set_default_reference',
+    'permission_callback' => '__return_true'
+  ));
+  
+  register_rest_route( 'geomap/v1', '/driving/lat-lng/(?P<lat>[0-9 .\-]+)/(?P<lng>[0-9 .\-]+)', array(
+    'methods' => 'GET',
+    'callback' => 'get_driving_time',
+    'permission_callback' => '__return_true'
+  ));
+  
+  
+  register_rest_route( 'geomap/v1', '/products', array(
+    'methods' => 'GET',
+    'callback' => 'get_products_by_postcodes',
+    'permission_callback' => '__return_true'
+  ));
+  
+  register_rest_route( 'geomap/v1', '/driving', array(
+    'methods' => 'GET',
+    'callback' => 'get_driving_time',
+    'permission_callback' => '__return_true'
+  ));
+  
+  // register_rest_route( 'geomap/v1', '/cities/city=(?P<city>[a-zA-Z0-9-]+)lat=(?P<lat>[a-z0-9 .\-]+)/lng=(?P<lng>[a-z0-9 .\-]+)', array(
+    // 'methods' => 'GET',
+    //'callback' => 'set_active_cities',
+    // ));
+    
     register_rest_route( 'geomap/v1', '/mapbox/api', array(
       'methods' => 'POST',
       'callback' => 'set_mapbox_api_credentials',
       'permission_callback' => '__return_true'
     ));  
-
+    
     register_rest_route( 'geomap/v1', '/postcodes', array(
       'methods' => 'POST',
       'callback' => 'set_deliverable_postcodes',
       'permission_callback' => '__return_true'
     )); 
-
-}
-
-/**
- * WP actions hooks
- */
-
-// Add hook for admin menu
+    
+  }
+  
+  /**
+   * WP actions hooks
+   */
+  
+  // Add hook for admin menu
 add_action( 'init', 'check_postcode_enqueuer' );
 add_action( 'init',  'get_deliverable_postcodes', 1);
 add_action( 'admin_menu', 'geo_map_distance_matrix_menu' );
+add_filter( 'woocommerce_product_query_meta_query', 'get_products_by_postcode', 10, 2 );
 
 // Add hook for admin <head></head>
 add_action( 'admin_head', 'css_import' );
@@ -557,18 +580,8 @@ add_action( 'rest_api_init', 'add_custom_apis');
   //add_rewrite_rule( 'check-postcode/?postcode=([^/]+)/?', 'index.php?postcode=$matches[1]', 'top' );
   //add_rewrite_tag( '%deliverable%', '([^/]+)' );
   //add_rewrite_rule( 'delivery/?deliverable=([^/]+)/?', 'index.php?deliverable=$matches[1]', 'top' );
-//} );
+  //} );
 add_action("wp_ajax_check_postcode", "check_postcode");
 add_action("wp_ajax_nopriv_check_postcode", "check_postcode");
-
-function filter_products_by_postcode(){
-  global $posts;
-  print_r($posts);
-
-}
-add_action('woocommerce_before_shop_loop_item', 'filter_products_by_postcode');
-//add_action( 'template_redirect', 'check_postcode');
-
-//add_action('get_mapbox_api_credentials', 'get_mapbox_api_credentialst')
-
-//add_action( 'widgets_init', 'jebstores_wc_register_widgets' );
+  //add_action( 'pre_get_posts' , 'filter_products_by_postcode' );
+add_action('woocommerce_no_products_found', 'display_no_products_for_postcode');  
