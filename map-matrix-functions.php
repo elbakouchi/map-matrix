@@ -409,7 +409,7 @@ function check_postcode_enqueuer()
   wp_localize_script('autocomplete_postcode_script', 'jebStoresPostcodes', array('postcodes' => explode(',', get_option(__JEBSTORES_DELIVERABLE_POSTCODES__))));
   
   
-  //wp_enqueue_style('autocomplete_postcode_style');
+  wp_enqueue_style('autocomplete_postcode_style');
 
   wp_enqueue_script('jquery');
   wp_enqueue_script('check_postcode_script');
