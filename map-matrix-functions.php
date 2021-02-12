@@ -402,7 +402,7 @@ function check_postcode_enqueuer()
 {
   wp_register_style('autocomplete_postcode_style', 'https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/8.3.1/css/autoComplete.min.css');
   wp_register_script("check_postcode_script", WP_PLUGIN_URL . '/jebstores-product-map-matrix/check_postcode_script.js', array('jquery'));
-  wp_register_script("autocomplete_postcode_lib",'https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/8.3.0/js/autoComplete.js');
+  wp_register_script("autocomplete_postcode_lib",'https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/8.3.1/js/autoComplete.min.js');
   wp_register_script("autocomplete_postcode_script", WP_PLUGIN_URL . '/jebstores-product-map-matrix/autocomplete_postcode_script.js', array('jquery'));
 
   wp_localize_script('check_postcode_script', 'jebStoresAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
