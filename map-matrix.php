@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 const               __THIS_PLUGIN_NAME__   = 'JebStores Products Geolocation Map & Distance Matrix' ;
-const               __THIS_PLUGIN_PATH__   = 'wp-content/plugins/jebstores-product-map-matrix/'    ;
+const               __THIS_PLUGIN_PATH__   = 'wp-content/plugins/jebstores-product-map-matrix/'     ;
 const                        __VERSION__   = '0.1.0'                                                ;
 const    __JEBSTORES_DEFAULT_REFERENCE__   = 'jebstores_default_reference_1'                        ;
 const __JEBSTORES_DELIVERABLE_POSTCODES__  = 'jebstores_deliverable_postcodes'                      ;
@@ -17,6 +17,11 @@ const       __JEBSTORES_MAPBOX_API_URL__   = 'jebstores_mapbox_api_url'         
 const    __JEBSTORES_PRODUCT_POSTCODES__   = 'wc_product_postcodes'                                 ;
 const   __JEBSTORES_USER_POSTCODE_ROOT__   = 'postcode_root'                                        ;
 const        __JEBSTORES_USER_POSTCODE__   = 'current_postcode'                                     ;
+const        __JEBSTORES_USER_ADDRESS__    = 'current_address'                                      ;
+const        __JEBSTORES_USER_DISTANCE__   = 'current_distance'                                     ;
+const        __JEBSTORES_USER_DURATION__   = 'current_duration'                                     ;
+const        __JEBSTORES_USER_LATITUDE__   = 'current_latitude'                                     ;
+const       __JEBSTORES_USER_LONGITUDE__   = 'current_longitude'                                    ;
 const     __JEBSTORES_MAPBOX_API_LOGIN__   = 'jebstores_mapbox_api_login'                           ;
 const     __JEBSTORES_MAPBOX_API_TOKEN__   = 'jebstores_mapbox_api_token'                           ;
 const        __JEBSTORES_ACTIVE_CITIES__   = 'jeb_active_cities'                                    ;

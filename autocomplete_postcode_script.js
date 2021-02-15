@@ -7,8 +7,7 @@ jQuery(document).ready(function () {
         loader.style.display = 'inline-block';
         const source = await fetch(`https://api.postcodes.io/postcodes/${postcode}/autocomplete`);
         const data = await source.json();
-        loader.style.display = 'none';
-        console.log(source, data);
+        loader.style.display = 'none'; 
         return (data.result === null) ? [] : data.result;
       },
       cache: true
@@ -20,12 +19,16 @@ jQuery(document).ready(function () {
     },
     trigger: {
       event: ["input", "focus"],
+      // condition: (query) =>{
+      //   console.log(query);
+      //   return (query.length > this.threshold && query !== " ")
+      // }
     },
     placeHolder: "Enter a postcode...",
     selector: "#autoComplete",
     observer: false,
     threshold: 1,
-    debounce: 300,
+    debounce: 0,
     searchEngine: "loose",
     resultsList: {
       container: source => {
@@ -52,24 +55,17 @@ jQuery(document).ready(function () {
       document.querySelector('#autocomplete_list').appendChild(result);
     },
     onSelection: feedback => {
-      let postcode = window.getDrivingMatrix(feedback.selection.value);
+      window.feedback = feedback;
+      window.deliverablePostCode(null,feedback.selection.value);
+      document.querySelector('#autoComplete').value = feedback.selection.value;
     }
   });
+
+  jQuery('#autoComplete').on('input',function(e){
+    jQuery('#notDelivrablePostcode').hide();
+    jQuery('#notValidPostCode').hide();
+      if(e.target.value.length >= 5){
+        window.validatePostCode(e.target.value);
+      }
+   });
 });
-window.getDrivingMatrix = async postcode => {
-  const loader = document.querySelector('#loader');
-  loader.style.display = 'inline-block';
-  const geoDataSource = await fetch(`https://api.postcodes.io/postcodes/${postcode}`);
-  const geoData = await geoDataSource.json();
-  loader.style.display = 'none';
-
-  if (geoData.hasOwnProperty('result') && geoData.result.hasOwnProperty('longitude') && geoData.result.hasOwnProperty('latitude')) {
-    loader.style.display = 'inline-block';
-    const drivingDataSource = await fetch(`/?rest_route=/geomap/v1/lat-lng/${geoData.result.longitude}/${geoData.result.latitude}`);
-  //  const drivingMatrix = await drivingDataSource.json();
-    console.log(drivingDataSource);
-    loader.style.display = 'none';
-    window.localStorage.drivingMatrix = JSON.stringify(drivingDataSource);
-  }
-
-}

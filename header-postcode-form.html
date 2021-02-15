@@ -134,3 +134,174 @@
  <a id="delivery" class="button primary is-xsmall expand lowercase"> <i class="icon-map-pin-fill"></i> <span><span id="address" style="color: #fff;">30 Brushfield St, Spitalfields, London E1</span></span> | <strong id="driving">ETA 16min</strong></a>
  
  
+
+ <style> 
+   .autocomplete-items, .autoComplete_result{
+   position: absolute;
+   border: 1px solid #d4d4d4;
+   border-bottom: none;
+   border-top: none;
+   z-index: 99;
+   /*position the autocomplete items to be the same width as the container:*/
+   top: 100%;
+   left: 0;
+   right: 0;
+   }
+   .autocomplete-items div {
+   padding: 10px;
+   cursor: pointer;
+   background-color: #fff;
+   border-bottom: 1px solid #d4d4d4;
+   }
+   .autocomplete-items div:hover {
+   /*when hovering an item:*/
+   background-color: #e9e9e9;
+   }
+   .autocomplete-active {
+   /*when navigating through the items using the arrow keys:*/
+   background-color: DodgerBlue !important;
+   color: #ffffff;
+   }
+   .input-icons i { 
+   position: absolute; 
+   } 
+   .input-icons { 
+   width: 100%; 
+   margin-bottom: 10px; 
+   } 
+   .icon { 
+   padding: 10px; 
+   min-width: 40px; 
+   } 
+   .input-field { 
+   width: 100%; 
+   padding: 10px; 
+   text-align: center; 
+   } 
+#loader{
+display:none;
+width:30px;
+height:30px;
+}
+</style>
+<div id="getpostcode" style="background: #395e6f;padding-top: 20px;"  data-animate="fadeInUp">
+   <div class="row" >
+      <div class="col medium-12 small-12 large-6">
+         <h4 style="color: #fff;">Enter your post code to check we deliver in your area.</h4>
+      </div>
+      <div id="" class="col medium-12 small-12 large-6" >
+         <form  autocomplete="off" method="get" id="postcodeForm" action="#">
+            <div class="flex-row small-flex-wrap">
+               <div class="flex-col flex-grow">
+                  <div class"" ><img id="loader" src="https://www.unspouse.com/loading.gif" /></div>
+                  <div class="input-icons  autoComplete_wrapper"> 
+                     <i id="find-me" class="dashicons dashicons-location icon input-icons "></i>
+                     <input  id="autoComplete" type="text" name="postcode" value="" size="40" class="wpcf7-form-control wpcf7-text"  placeholder="Enter a postcode" />
+<ul id="autoComplete_list" aria-label="food & drinks" class="autoComplete_list" role="listbox" tabindex="-1"><li id="autoComplete_result_0" class="autoComplete_result" role="option" style="display: flex; justify-content: space-between;"></ul>
+                  </div>
+               </div>
+               <div class="flex-col ml-half"> 
+                  <input type="submit"  value="Check postcode" class="wpcf7-form-control wpcf7-submit button" id="submitPostCode" > 
+               </div>
+            </div>
+         </form>
+         <div id="notDelivrablePostcode" style="display: none;">
+            <p>
+               Sorry, we don't deliver to this postcode. Check again for we are expanding fast!
+            </p>
+         </div>
+         <div id="notValidPostCode" style="display: none;color:red;">
+            <p>
+               Invalid Postcode!
+            </p>
+         </div>
+      </div>
+   </div>
+</div>
+<a id="delivery" class="button primary is-xsmall expand lowercase"> <i class="icon-map-pin-fill"></i> <span><span id="address" style="color: #fff;">30 Brushfield St, Spitalfields, London E1</span></span> | <strong id="driving">ETA 16min</strong></a>
+
+<style> 
+   .autocomplete-items, .autoComplete_result{
+   position: absolute;
+   border: 1px solid #d4d4d4;
+   border-bottom: none;
+   border-top: none;
+   z-index: 99;
+   /*position the autocomplete items to be the same width as the container:*/
+   top: 100%;
+   left: 0;
+   right: 0;
+   }
+   .autocomplete-items div {
+   padding: 10px;
+   cursor: pointer;
+   background-color: #fff;
+   border-bottom: 1px solid #d4d4d4;
+   }
+   .autocomplete-items div:hover {
+   /*when hovering an item:*/
+   background-color: #e9e9e9;
+   }
+   .autocomplete-active {
+   /*when navigating through the items using the arrow keys:*/
+   background-color: DodgerBlue !important;
+   color: #ffffff;
+   }
+   .input-icons i { 
+   position: absolute; 
+   } 
+   .input-icons { 
+   width: 100%; 
+   margin-bottom: 10px; 
+   } 
+   .icon { 
+   padding: 10px; 
+   min-width: 40px; 
+   } 
+   .input-field { 
+   width: 100%; 
+   padding: 10px; 
+   text-align: center; 
+   } 
+#loader{
+display:none;
+width:30px;
+height:30px;
+}
+</style>
+<div id="getpostcode" style="background: #395e6f;padding-top: 20px;"  data-animate="fadeInUp">
+   <div class="row" >
+      <div class="col medium-12 small-12 large-6">
+         <h4 style="color: #fff;">Enter your post code to check we deliver in your area.</h4>
+      </div>
+      <div id="" class="col medium-12 small-12 large-6" >
+         <form  autocomplete="off" method="get" id="postcodeForm" action="#">
+            <div class="flex-row small-flex-wrap">
+               <div class="flex-col flex-grow">
+                  <div class"" ><img id="loader" src="https://www.unspouse.com/loading.gif" /></div>
+                  <div class="input-icons  autoComplete_wrapper"> 
+                     <i id="find-me" class="dashicons dashicons-location icon input-icons "></i>
+                     <input  id="autoComplete" type="text" name="postcode" value="" size="40" class="wpcf7-form-control wpcf7-text"  placeholder="Enter a postcode" />
+<ul id="autoComplete_list" aria-label="food & drinks" class="autoComplete_list" role="listbox" tabindex="-1"><li id="autoComplete_result_0" class="autoComplete_result" role="option" style="display: flex; justify-content: space-between;"></ul>
+                  </div>
+               </div>
+               <div class="flex-col ml-half"> 
+                  <input type="submit"  value="Check postcode" class="wpcf7-form-control wpcf7-submit button" id="submitPostCode" > 
+               </div>
+            </div>
+         </form>
+         <div id="notDelivrablePostcode" style="display: none;">
+            <p>
+               Sorry, we don't deliver to this postcode. Check again for we are expanding fast!
+            </p>
+         </div>
+         <div id="notValidPostCode" style="display: none;color:red;">
+            <p>
+               Invalid Postcode!
+            </p>
+         </div>
+      </div>
+   </div>
+</div>
+<a id="delivery" class="button primary is-xsmall expand lowercase"> <i class="icon-map-pin-fill"></i> <span><span id="address" style="color: #fff;">30 Brushfield St, Spitalfields, London E1</span></span> | <strong id="driving">ETA 16min</strong></a>
+
