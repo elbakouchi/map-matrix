@@ -22,7 +22,7 @@ jQuery(document).ready(function () {
             "m": minutes,
             "s": seconds
         };
-        return `${obj.h}:${obj.m}:${obj.s}`
+        return `${obj.h}:${obj.m}`;
         //return obj;
     }
     async function postData(url = '', data = {}) {
@@ -67,7 +67,7 @@ jQuery(document).ready(function () {
         } catch (e) {
 
         }
-
+        window.localStorage.setItem('USER_POSTCODE', postcode);
         loader.style.display = 'none';
 
         window.location.href = '/?post_type=product';

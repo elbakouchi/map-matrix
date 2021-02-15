@@ -139,8 +139,7 @@ window.getDrivingMatrix = async postcode => {
       console.log(drivingDataSource, drivingMatrix);
       loader.style.display = 'none';
       window.localStorage.drivingMatrix = JSON.stringify(drivingMatrix);
-      window.saveUserDrivingMatrix(postcode, drivingMatrix);
-      window.localStorage.setItem('USER_POSTCODE', postcode);
+      await window.saveUserDrivingMatrix(postcode, drivingMatrix);
     }
   
   }
