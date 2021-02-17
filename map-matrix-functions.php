@@ -399,7 +399,7 @@ function autocomplete_postcode(){
 
 }
 
-function check_postcode_enqueuer()
+function jebstores_scripts_enqueuer()
 {
   global $__MAPBOX_API_TOKEN__;
   global $__JEBSTORES_LONDON_REFERENCE__;
@@ -409,6 +409,7 @@ function check_postcode_enqueuer()
   wp_register_script('autocomplete_postcode_lib','https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/8.3.1/js/autoComplete.js');
   wp_register_script('autocomplete_postcode_script', WP_PLUGIN_URL . '/jebstores-product-map-matrix/autocomplete_postcode_script.js', array('jquery'));
   wp_register_script('save_user_driving_matrix_script', WP_PLUGIN_URL .'/jebstores-product-map-matrix/save_user_driving_matrix.js', array('jquery') );
+  wp_register_script('edit_postcode_script', WP_PLUGIN_URL .'/jebstores-product-map-matrix/edit_postcode_script.js', array('jquery') );
 
   wp_localize_script('check_postcode_script', 'jebStoresAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
   wp_localize_script('save_user_driving_matrix_script', 'jebStoresAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
@@ -423,6 +424,7 @@ function check_postcode_enqueuer()
   wp_enqueue_script('save_user_driving_matrix_script');
   wp_enqueue_script('autocomplete_postcode_lib');
   wp_enqueue_script('autocomplete_postcode_script');
+  wp_enqueue_script('edit_postcode_script');
 }
 
 function fetch_postcode_geocoding_info($request)
@@ -536,6 +538,7 @@ function save_user_driving_matrix()
     $_SESSION[__JEBSTORES_USER_LONGITUDE__]       = $driving_longitude;
     $_SESSION[__JEBSTORES_USER_POSTCODE_ROOT__] = $part1;
   }  
+  error_log($_SESSION[__JEBSTORES_USER_POSTCODE_ROOT__]);
   error_log($_SESSION[__JEBSTORES_USER_POSTCODE__]);
   error_log($_SESSION[__JEBSTORES_USER_DISTANCE__]);
   error_log($_SESSION[__JEBSTORES_USER_ADDRESS__]);
@@ -631,15 +634,14 @@ function get_products_by_postcode($meta_query, $query)
 {
   // Only on shop pages
   //if( ! is_shop() ) return $meta_query;
-  //if(is_shop()){
-
+  if(is_shop() || is_woocommerce()){
     $meta_query[] = array(
       'key'     => __JEBSTORES_PRODUCT_POSTCODES__,
       'value'   => $_SESSION[__JEBSTORES_USER_POSTCODE_ROOT__],
       'compare' => 'LIKE'
     );
     return $meta_query;
-  //}
+  }
 }
 
 
@@ -715,10 +717,10 @@ function add_custom_apis()
  */
 
 // Add hook for admin menu
-add_action('init', 'check_postcode_enqueuer');
+add_action('init', 'jebstores_scripts_enqueuer');
 add_action('init',  'get_deliverable_postcodes', 1);
 add_action('admin_menu', 'geo_map_distance_matrix_menu');
-add_filter('woocommerce_product_query_meta_query', 'get_products_by_postcode', 10, 2);
+add_filter('woocommerce_product_query_meta_query', 'get_products_by_postcode', 1, 2);
 
 // Add hook for admin <head></head>
 add_action('admin_head', 'css_import');
@@ -740,10 +742,15 @@ add_action('rest_api_init', 'add_custom_apis');
 //} );
 add_action("wp_ajax_check_postcode", "check_postcode");
 add_action("wp_ajax_nopriv_check_postcode", "check_postcode");
+
 add_action("wp_ajax_save_user_driving_matrix", "save_user_driving_matrix");
 add_action("wp_ajax_nopriv_save_user_driving_matrix", "save_user_driving_matrix");
 
-add_action("wp_ajax_check_postcode", "autocomplete_postcode");
-add_action("wp_ajax_nopriv_check_postcode", "autocomplete_postcode");
+add_action("wp_ajax_autocomplete_postcode", "autocomplete_postcode");
+add_action("wp_ajax_nopriv_autocomplete_postcode", "autocomplete_postcode");
+
+add_action("wp_ajax_edit_postcode", "edit_postcode");
+add_action("wp_ajax_nopriv_edit_postcode", "edit_postcode");
+
 //add_action( 'pre_get_posts' , 'filter_products_by_postcode' );
 add_action('woocommerce_no_products_found', 'display_no_products_for_postcode');

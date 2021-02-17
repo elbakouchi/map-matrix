@@ -59,7 +59,7 @@ jQuery(document).ready(function () {
             'longitude': matrix.destinations[0].location[0],
             'latitude': matrix.destinations[0].location[1]
         };
-        const posting = jPostData(jebStoresAjax.ajaxurl, data);
+        const posting =  await jPostData(jebStoresAjax.ajaxurl, data);
         try {
             posting.done(function (response) {
                 window.localStorage.setItem('SESSION_SAVED', reponse);
@@ -69,9 +69,6 @@ jQuery(document).ready(function () {
         }
         window.localStorage.setItem('USER_POSTCODE', postcode);
         loader.style.display = 'none';
-
         window.location.href = '/?post_type=product';
-
-
     }
 });

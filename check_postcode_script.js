@@ -1,5 +1,4 @@
 jQuery(document).ready(function () {
-
     function success(position) {
         let url;
         if (position !== null) {
@@ -43,12 +42,10 @@ jQuery(document).ready(function () {
                 }
             );
     }
-
     function error() {
         alert('Unable to retrieve your location');
         //success(null);
     }
-
     function geoFindMe() {
         const status = document.querySelector('#status');
         if (!navigator.geolocation) {
@@ -57,7 +54,6 @@ jQuery(document).ready(function () {
            // navigator.geolocation.getCurrentPosition(success, error);
         }
     }
-
     //document.querySelector('#find-me').addEventListener('click', geoFindMe);
 
     if (localStorage.getItem('USER_POSTCODE') === null) {

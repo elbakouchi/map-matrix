@@ -27,7 +27,7 @@ jQuery(document).ready(function () {
     placeHolder: "Enter a postcode...",
     selector: "#autoComplete",
     observer: false,
-    threshold: 1,
+    threshold: 3,
     debounce: 0,
     searchEngine: "loose",
     resultsList: {
