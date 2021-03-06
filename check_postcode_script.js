@@ -57,8 +57,10 @@ window.deliverablePostCode = async (e,postcode) => {
     const event = new Event('deliverable');
     document.dispatchEvent(event);
   }else{
+    window.postcode = null;
+    window.destroyList('autoComplete_list');  
+    jQuery('.no_result').hide();  
     jQuery('#notDelivrablePostcode').show();
-  //  window.localStorage.removeItem('USER_POSTCODE');
   }
   loader.style.display = 'none';
 }
