@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link rel='stylesheet' id='autocomplete_postcode_style-css'  href='https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/8.3.2/css/autoComplete.min.css?ver=5.6.2' type='text/css' media='all' />
+        <script type='text/javascript' src='https://jebstores.com/wp-includes/js/jquery/jquery.min.js?ver=3.5.1' id='jquery-core-js'></script>
+        <script>
+            jQuery(document).ready(function(){
+                var destroyList = function(id){
+                    list = document.getElementById(id);
+                    list.remove(); 
+                }
+                var createList = function(data){
+                    try{
+                        destroyList('autoComplete_list');
+                    }catch(e){
+
+                    }
+                    var list = document.createElement('ul');
+                    list.setAttribute("id", "autoComplete_list");
+                    list.setAttribute("aria-label", "postocodes");
+                    list.setAttribute("class", "autoComplete_list");
+                    list.setAttribute("role", "listbox");
+                    list.setAttribute("tabindex", "-1");
+                    if ('result' in data && data.result !== null && data.result.length > 0){
+                        for (var index = 0; index < data.result.length; index++) {
+                            var postcode = data.result[index];
+                            var listItem = document.createElement('li');
+                            listItem.setAttribute("id", "".concat("autoComplete_result", "_").concat(index));
+                            listItem.setAttribute("class", "autoComplete_result");
+                            listItem.setAttribute("role", "option");
+                            //jQuery("#".concat("autoComplete_result", "_").concat(index)).css('display', 'block');
+                            listItem.innerHTML = postcode;    
+                            list.appendChild(listItem);         
+                        }
+                        var destination = document.querySelector('#autoComplete');
+                        destination.insertAdjacentElement('afterend', list);
+                    }else{
+                        var listItem = document.createElement('li');
+                        listItem.setAttribute("id", "".concat("autoComplete_result", "_").concat(1));
+                        listItem.setAttribute("class", "autoComplete_result");
+                        listItem.setAttribute("role", "option");
+                        //jQuery("#".concat("autoComplete_result", "_").concat(index)).css('display', 'block');
+                        listItem.innerHTML = "No results found";    
+                        list.appendChild(listItem);  
+                        var destination = document.querySelector('#autoComplete');
+                        destination.insertAdjacentElement('afterend', list);
+                    }
+                }
+
+                jQuery('#autoComplete').on('input', async function(){
+                    const postcode = document.querySelector("#autoComplete").value;
+                    const source = await fetch(`https://api.postcodes.io/postcodes/${postcode}/autocomplete`);
+                    const data = await source.json();
+                    console.debug(data);
+                    createList(data);
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <input id="autoComplete" type="text" dir="ltr" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="on" maxlength="2048" tabindex="1" role="combobox" aria-haspopup="true" aria-expanded="false" aria-controls="autoComplete_list" aria-autocomplete="both" placeholder="Enter postcode…">
+        <!--input id="autoComplete" type="text" class="wpcf7-form-control wpcf7-text" -->
+    </body>
+</html>
