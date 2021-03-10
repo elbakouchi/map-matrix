@@ -33,10 +33,17 @@ window.validatePostCode = async postcode => {
       const event = new Event('validated');
       document.dispatchEvent(event);
     }else{
-      window.postcode = null;
-      window.destroyList('autoComplete_list');
-      jQuery('.no_result').hide();  
-      jQuery('#notValidPostCode').show();
+      try{
+        if(window.autoCompletePostcodes.length === 0){
+          window.destroyList('autoComplete_list');
+          jQuery('#notValidPostCode').show();
+        }
+      }catch(e){
+        console.log(e)
+      }finally{
+        jQuery('.no_result').hide();  
+        window.postcode = null;
+      }
     }
     loader.style.display = 'none';
 }

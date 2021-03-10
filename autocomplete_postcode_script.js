@@ -43,6 +43,7 @@
         const postcode = document.querySelector("#autoComplete").value;
         const source = await fetch(`https://api.postcodes.io/postcodes/${postcode}/autocomplete`);
         const data = await source.json();
+        window.autoCompletePostcodes = data;
         jQuery('#notDelivrablePostcode').hide();
         jQuery('#notValidPostCode').hide();
         if(e.target.value.length >= 5){
