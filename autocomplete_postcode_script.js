@@ -35,7 +35,7 @@
 
     jQuery(document).on('click', "#autoComplete_list li", function(e) {
      //   console.log(e);
-      jQuery('#autoComplete').val(e.target.innerText);
+      jQuery('#autoComplete').val(e.target.innerText.toUpperCase());
       window.validatePostCode(e.target.innerText);
     });
 
