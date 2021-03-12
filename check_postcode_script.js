@@ -59,6 +59,7 @@ window.deliverablePostCode = async (e,postcode) => {
   }catch(e){}
   if(undefined === postcode) postcode = jQuery("#autoComplete").val();
   const loader = document.querySelector('#loader');
+  let postcodeParts = postcode.split(' ');
   let needle   = postcodeParts[0].toUpperCase();
   if (jebStoresPostcodes.postcodes.includes(needle)) {
     const event = new Event('deliverable');
