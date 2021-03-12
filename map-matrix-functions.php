@@ -702,6 +702,10 @@ function get_products_by_postcode($meta_query, $query)
   }
 }
 
+function print_eta_from_session(){
+  echo '<p class="">You will receive your order in <span class="eta">' . $_SESSION[__JEBSTORES_USER_DURATION__] . ' min.</span>';
+}
+
 
 /**
  * Routes
@@ -825,3 +829,5 @@ add_action('woocommerce_before_single_product', 'warn_customer_about_deliverabil
 
 add_action('woocommerce_product_options_shipping', 'jebstores_wc_add_postcodes_to_wc_product');
 add_action('woocommerce_process_product_meta', 'jebstores_wc_save_postcodes_to_wc_product');
+
+add_action('woocommerce_order_details_after_order_table', 'print_eta_from_session');
