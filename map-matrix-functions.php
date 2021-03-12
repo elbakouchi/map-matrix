@@ -397,6 +397,22 @@ function autocomplete_postcode(){
 
 }
 
+function add_admin_scripts( $hook ) {
+  if(strpos($hook, 'geo-map-distance-matrix')){
+   // print($hook);
+    wp_register_style('bulma_css_framework', 'https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css');
+    wp_register_style('mapbox_css', 'https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css');
+    wp_register_script('mapbox_js','https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js');
+    wp_enqueue_style('bulma_css_framework');
+    wp_enqueue_style('mapbox_css');
+    wp_enqueue_script('mapbox_js');
+    add_action('admin_footer', 'scripts_import');
+    add_action('admin_footer', 'map_box_script');
+  }
+}
+
+add_action( 'admin_enqueue_scripts', 'add_admin_scripts', 10, 1 );
+
 function jebstores_scripts_enqueuer()
 {
   global $__MAPBOX_API_TOKEN__;
@@ -768,12 +784,12 @@ add_filter('woocommerce_product_query_meta_query', 'get_products_by_postcode', 1
 //add_filter('woocommerce_email_after_order_table', 'show_eta_from_postcode', 1, 2);
 
 // Add hook for admin <head></head>
-add_action('admin_head', 'css_import');
-add_action('admin_head', 'js_import');
+//add_action('admin_head', 'css_import');
+//add_action('admin_head', 'js_import');
 
 // Add hook for admin footer
-add_action('admin_footer', 'scripts_import');
-add_action('admin_footer', 'map_box_script');
+//add_action('admin_footer', 'scripts_import');
+//add_action('admin_footer', 'map_box_script');
 
 //The Following registers an api route with multiple parameters. 
 add_action('rest_api_init', 'add_custom_apis');
