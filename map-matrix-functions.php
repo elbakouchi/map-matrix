@@ -703,7 +703,7 @@ function get_products_by_postcode($meta_query, $query)
 }
 
 function print_eta_from_session(){
-  echo '<p class="">You will receive your order in <span class="eta">' . $_SESSION[__JEBSTORES_USER_DURATION__] . ' min.</span>';
+  echo '<p class="">You will receive your order in <span class="eta">' . $_SESSION[__JEBSTORES_USER_DURATION__] . ' min.</span></p>';
 }
 
 
