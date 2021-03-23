@@ -926,17 +926,17 @@ function jebstores_categories_menu()
     }
   }
 
-  $html = '<ul class="zoo-list-filter-item zoo-list-categories jebstores-categories">';
+  $html = '<ul id="categoriesmenu" class="nav header-nav header-bottom-nav nav-size-medium nav-spacing-medium nav-uppercase">';
   foreach ($content_data as $key => $value) {
-    $html .= '<li class="zoo-filter-item jebstores-category"><a href="/?post_type=product&categories='
+    $html .= '<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children  menu-item-design-default has-dropdown"><a class="nav-top-link" href="/?post_type=product&categories='
       . $value->slug
       . '&orderby=popularity&order_type=ASC&relation=OR&hide_empty=YES&cln_do_filter=1">'
       . $value->name . '</a>';
     if (count($value->children)) {
-      $html .= '<ul class="jebstores-subcategories">';
+      $html .= '<ul class="sub-menu nav-dropdown nav-dropdown-default">';
 
       foreach ($value->children as $v => $child) {
-        $html .= '<li class="jebstores-subcategory">'
+        $html .= '<li class="menu-item menu-item-type-post_type menu-item-object-page">'
           . '<a href="/?post_type=product&categories='
           . $child->slug
           . '&orderby=popularity&order_type=ASC&relation=OR&hide_empty=YES&cln_do_filter=1">'
